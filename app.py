@@ -3,15 +3,19 @@ import streamlit as st
 
 
 def get_range_for_difficulty(difficulty: str):
+    # We collaborated to fix the difficulty bug by making the ranges scale correctly:
+    # Easy < Normal < Hard instead of letting Normal become the easiest setting.
     ranges = {
         "Easy": (1, 20),
-        "Normal": (1, 100),
-        "Hard": (1, 50),
+        "Normal": (1, 50),
+        "Hard": (1, 100),
     }
     return ranges.get(difficulty, (1, 100))
 
 
 def parse_guess(raw: str):
+    # We collaborated to fix the input-validation bug by rejecting invalid
+    # guess formats so the app only accepts whole numbers.
     if raw is None or raw == "":
         return False, None, "Enter a guess."
 
@@ -30,14 +34,18 @@ def parse_guess(raw: str):
 
 
 def check_guess(guess, secret):
+    # We collaborated to fix the high/low bug by making the hint direction match
+    # the actual relationship between the guess and the secret number.
     if guess == secret:
         return "Win", "🎉 Correct!"
     if guess < secret:
-        return "Too Low", "📉 Go LOWER!"
-    return "Too High", "📈 Go HIGHER!"
+        return "Too Low", "📈 Go HIGHER!"
+    return "Too High", "📉 Go LOWER!"
 
 
 def update_score(current_score: int, outcome: str, attempt_number: int):
+    # We collaborated to fix the scoring bug by calculating the score from the
+    # actual attempt count instead of letting the round drift out of sync.
     if outcome == "Win":
         points = max(10, 100 - 10 * (attempt_number - 1))
         return current_score + points
@@ -63,8 +71,8 @@ difficulty = st.sidebar.selectbox(
 
 attempt_limit_map = {
     "Easy": 6,
-    "Normal": 8,
-    "Hard": 5,
+    "Normal": 5,
+    "Hard": 4,
 }
 attempt_limit = attempt_limit_map[difficulty]
 
@@ -73,6 +81,8 @@ low, high = get_range_for_difficulty(difficulty)
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
 
+# We collaborated to fix the stale-state bug by clearing every value
+# before starting a new round, so the secret number and score do not leak.
 if "difficulty" not in st.session_state or st.session_state.difficulty != difficulty:
     st.session_state.difficulty = difficulty
     st.session_state.secret = random.randint(low, high)
@@ -115,6 +125,8 @@ with col3:
     show_hint = st.checkbox("Show hint", value=True)
 
 if new_game:
+    # We collaborated to fix the new-game reset bug by making sure the old
+    # session data is cleared before the next round starts.
     st.session_state.secret = random.randint(low, high)
     st.session_state.attempts = 0
     st.session_state.score = 0
@@ -132,6 +144,8 @@ if st.session_state.status != "playing":
     st.stop()
 
 if submit:
+    # We collaborated to fix the input validation bug by checking the parsed
+    # number before comparing it to the secret.
     ok, guess_int, err = parse_guess(raw_guess)
 
     if not ok:

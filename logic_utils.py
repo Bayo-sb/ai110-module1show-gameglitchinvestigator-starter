@@ -3,8 +3,6 @@
 # Easy < Normal < Hard instead of letting Normal become the easiest setting.
 def get_range_for_difficulty(difficulty: str) -> tuple[int, int]:
     """Return the inclusive (low, high) range for the requested difficulty."""
-    # FIXME: Difficulty progression must stay in the right order:
-    # Easy < Normal < Hard.
     ranges = {
         "Easy": (1, 20),
         "Normal": (1, 50),
@@ -15,8 +13,8 @@ def get_range_for_difficulty(difficulty: str) -> tuple[int, int]:
 
 def parse_guess(raw: str) -> tuple[bool, int | None, str | None]:
     """Validate and parse a whole-number guess."""
-    # FIXME: Reject empty, None, whitespace-only, decimal, scientific notation,
-    # and non-numeric input before using the value.
+    # We collaborated to fix the input-validation bug by rejecting invalid
+    # guess formats so the app only accepts whole numbers.
     if raw is None or raw == "":
         return False, None, "Enter a guess."
 
@@ -36,8 +34,8 @@ def parse_guess(raw: str) -> tuple[bool, int | None, str | None]:
 
 def check_guess(guess: int, secret: int) -> tuple[str, str]:
     """Compare a guess to the secret number and return the outcome and hint."""
-    # FIXME: Keep the comparison numeric and fix the direction:
-    # low guess => go higher, high guess => go lower.
+    # We collaborated to fix the high/low bug by making the hint direction match
+    # the actual relationship between the guess and the secret number.
     if guess == secret:
         return "Win", "🎉 Correct!"
     if guess < secret:
@@ -47,7 +45,8 @@ def check_guess(guess: int, secret: int) -> tuple[str, str]:
 
 def update_score(current_score: int, outcome: str, attempt_number: int) -> int:
     """Update the score based on the outcome and number of attempts."""
-    # FIXME: Score should reflect real attempt count and game outcome.
+    # We collaborated to fix the scoring bug by calculating the score from the
+    # actual attempt count instead of letting the round drift out of sync.
     if outcome == "Win":
         points = max(10, 100 - 10 * (attempt_number - 1))
         return current_score + points
