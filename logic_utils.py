@@ -1,8 +1,10 @@
 # FIXME: Difficulty progression is reversed: Normal should be harder than Easy but easier than Hard.
 # We collaborated to fix the difficulty bug by making the ranges scale correctly:
 # Easy < Normal < Hard instead of letting Normal become the easiest setting.
-def get_range_for_difficulty(difficulty: str):
-    """Return (low, high) inclusive range for a given difficulty."""
+def get_range_for_difficulty(difficulty: str) -> tuple[int, int]:
+    """Return the inclusive (low, high) range for the requested difficulty."""
+    # FIXME: Difficulty progression must stay in the right order:
+    # Easy < Normal < Hard.
     ranges = {
         "Easy": (1, 20),
         "Normal": (1, 50),
@@ -11,14 +13,10 @@ def get_range_for_difficulty(difficulty: str):
     return ranges.get(difficulty, (1, 100))
 
 
-def parse_guess(raw: str):
-    """
-    Parse user input into an int guess.
-
-    Returns: (ok: bool, guess_int: int | None, error_message: str | None)
-    """
-    # We collaborated to fix the input bug by rejecting decimals and scientific notation.
-    # FIXME: This validator must reject decimals and scientific notation.
+def parse_guess(raw: str) -> tuple[bool, int | None, str | None]:
+    """Validate and parse a whole-number guess."""
+    # FIXME: Reject empty, None, whitespace-only, decimal, scientific notation,
+    # and non-numeric input before using the value.
     if raw is None or raw == "":
         return False, None, "Enter a guess."
 
@@ -36,16 +34,10 @@ def parse_guess(raw: str):
     return True, value, None
 
 
-def check_guess(guess, secret):
-    """
-    Compare guess to secret and return (outcome, message).
-
-    outcome examples: "Win", "Too High", "Too Low"
-    """
-    # We collaborated to fix the comparison bug by keeping values numeric and
-    # making the hint direction match the actual relationship: low => go higher.
-    # FIXME: Do not compare strings here; keep everything numeric.
-    # FIXME: Hint direction is reversed here; too-low guesses should say to go higher.
+def check_guess(guess: int, secret: int) -> tuple[str, str]:
+    """Compare a guess to the secret number and return the outcome and hint."""
+    # FIXME: Keep the comparison numeric and fix the direction:
+    # low guess => go higher, high guess => go lower.
     if guess == secret:
         return "Win", "🎉 Correct!"
     if guess < secret:
@@ -53,10 +45,9 @@ def check_guess(guess, secret):
     return "Too High", "📉 Go LOWER!"
 
 
-def update_score(current_score: int, outcome: str, attempt_number: int):
-    """Update score based on outcome and attempt number."""
-    # We collaborated to fix the scoring bug by making it depend on the real attempt count.
-    # FIXME: Score should be consistent and based on the real attempt count.
+def update_score(current_score: int, outcome: str, attempt_number: int) -> int:
+    """Update the score based on the outcome and number of attempts."""
+    # FIXME: Score should reflect real attempt count and game outcome.
     if outcome == "Win":
         points = max(10, 100 - 10 * (attempt_number - 1))
         return current_score + points

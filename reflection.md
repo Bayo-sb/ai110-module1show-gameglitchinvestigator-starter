@@ -19,39 +19,20 @@ Fifth Bug: It allows numbers outside the range.
 
 **Bug Reproduction Log**
 
-Document at least 3 bugs you found. Add rows as needed.
-
-| Input             | Expected Behavior       | Actual Behavior                        | Console Output / Error |
-|-------------------|-------------------------|----------------------------------------|------------------------|
-| Enter a guess     | Hint should indicate    | The hint directs me to guess lower.    |  None                  |
-|    of 5           | I should go higher      |                  |
- 
-| Enter a guess     | raise Error to flag     | it allows it to run                    |  None                  |
-| of 189 in Easy    |   number is out         |                                        |                        |
-|  mode             |        of range         |                                        |                        |
-|                   |                         |  
-
-| Click “New Game”  | The game should reset   | The game does not reset to its default | None                   |
-| at the end of the | to its default state.   | state                                  |                        |
-|  game             |                         |                                        |                        |
-
-| Select Normal     | Normal mode should be    | Normal mode is easier than Easy mode  |                        |
-| difficulty mode   | more difficult than Easy | with more attempty and same range     |
-|                   | and allow fewer attempt  |                                       |
-|                   |    and large range than  |                                       |
-|                   |    easy mode
-
-| input a guess and | Any guess attempt counted| The remaining attempts decrease       | None                    |
-|  Press the Enter  | should also be recorded  |without the attempt being recorded in  |                      
-|          key      | in the guess history     |the history.                           |
-
+| Input | Expected Behavior | Actual Behavior | Console Output / Error |
+|---|---|---|---|
+| Guess 5 with a secret of 17 | The hint should say to go higher | The app told me to go lower | None |
+| Guess 189 in Easy mode | The game should reject it as out of range | It allowed the guess to run | None |
+| Click “New Game” at the end of the game | The game should reset to its default state | The game did not reset properly | None |
+| Select Normal difficulty | Normal should be harder than Easy | Normal was easier than Easy and used the same number range | None |
+| Enter a guess and press Enter | The guess should be counted and recorded | The number of attempts decreased without adding the guess to the history | None |
 
 ---
 
 ## 2. How did you use AI as a teammate?
 
 - Which AI tools did you use on this project (for example: ChatGPT, Gemini, Copilot)?
-I used GitHub Copilot in VS Code on this project
+I used GitHub Copilot in VS Code on this project.
 
 - Give one example of an AI suggestion that was correct (including what the AI suggested and how you verified the result).
 One AI suggestion that was correct was the diagnosis of the hint bug: it pointed out that the comparison function was returning the wrong instruction for low and high guesses. I verified it by checking a few inputs directly, such as guess 3 with secret 40, which should say “Go HIGHER!”, and guess 60 with secret 50, which should say “Go LOWER!”.

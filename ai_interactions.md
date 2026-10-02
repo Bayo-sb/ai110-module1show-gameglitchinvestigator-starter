@@ -47,30 +47,17 @@ I verified the parsing behavior in the game logic and confirmed the edge cases w
 
 ## Linting & Style (SF9)
 
-I asked Copilot to simplify the app structure and make the code easier to read without changing the logic. It suggested:
-- moving repeated game logic into helper functions
-- keeping session-state initialization in one place
-- separating reset logic from gameplay logic
-- preserving the same behavior while improving readability
-- keeping comments clear and concise
-
-I accepted the changes that improved readability and did not change game rules or app behavior. The final version keeps the same functionality while making the code easier to scan and maintain.
-
 **Prompt used:**
 
-```
+```text
 Go through my code and ensure standard practice with PEP 8 style and make it readable without breaking my code.
-```
-
-**Linting output before:**
-
-```
-None
 ```
 
 **Changes applied:**
 
 I accepted the refactor that kept the same gameplay behavior while making the app easier to scan and maintain. The final version uses helper functions to initialize and reset session state, keeps the logic organized, and preserves the original rules of the game without changing how it plays.
+
+The refactor step improved readability, but it also removed some of the earlier in-code fix notes. I restored those comments so the reasoning stays visible next to each fix.
 
 ---
 
