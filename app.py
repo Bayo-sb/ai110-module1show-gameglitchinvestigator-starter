@@ -1,7 +1,42 @@
 import random
+
 import streamlit as st
 
 from logic_utils import check_guess, get_range_for_difficulty, parse_guess, update_score
+
+
+DIFFICULTY_OPTIONS = ["Easy", "Normal", "Hard"]
+ATTEMPT_LIMITS = {"Easy": 6, "Normal": 5, "Hard": 4}
+
+
+def reset_round(difficulty: str, low: int, high: int) -> None:
+    """Reset game state for a fresh round."""
+    st.session_state.difficulty = difficulty
+    st.session_state.secret = random.randint(low, high)
+    st.session_state.attempts = 0
+    st.session_state.score = 0
+    st.session_state.status = "playing"
+    st.session_state.history = []
+    st.session_state.guess_input = ""
+
+
+def initialize_session_state(difficulty: str, low: int, high: int) -> None:
+    """Ensure session state is ready for the selected difficulty."""
+    if "difficulty" not in st.session_state or st.session_state.difficulty != difficulty:
+        reset_round(difficulty, low, high)
+
+    defaults = {
+        "secret": random.randint(low, high),
+        "attempts": 0,
+        "score": 0,
+        "status": "playing",
+        "history": [],
+        "guess_input": "",
+    }
+
+    for key, value in defaults.items():
+        if key not in st.session_state:
+            st.session_state[key] = value
 
 
 st.set_page_config(page_title="Game Glitch Investigator", page_icon="🎮")
@@ -13,49 +48,17 @@ st.sidebar.header("Settings")
 
 difficulty = st.sidebar.selectbox(
     "Difficulty",
-    ["Easy", "Normal", "Hard"],
+    DIFFICULTY_OPTIONS,
     index=1,
 )
 
-attempt_limit_map = {
-    "Easy": 6,
-    "Normal": 5,
-    "Hard": 4,
-}
-attempt_limit = attempt_limit_map[difficulty]
-
+attempt_limit = ATTEMPT_LIMITS[difficulty]
 low, high = get_range_for_difficulty(difficulty)
 
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
 
-# We collaborated to fix the stale-state bug by resetting the session whenever the difficulty changes.
-# FIXME: Difficulty resets must clear stale session state.
-if "difficulty" not in st.session_state or st.session_state.difficulty != difficulty:
-    st.session_state.difficulty = difficulty
-    st.session_state.secret = random.randint(low, high)
-    st.session_state.attempts = 0
-    st.session_state.score = 0
-    st.session_state.status = "playing"
-    st.session_state.history = []
-    st.session_state.guess_input = ""
-
-# We collaborated to fix the missing-state bug by initializing the session values before the game begins.
-# FIXME: Fresh sessions must initialize all required state.
-if "secret" not in st.session_state:
-    st.session_state.secret = random.randint(low, high)
-
-if "attempts" not in st.session_state:
-    st.session_state.attempts = 0
-
-if "score" not in st.session_state:
-    st.session_state.score = 0
-
-if "status" not in st.session_state:
-    st.session_state.status = "playing"
-
-if "history" not in st.session_state:
-    st.session_state.history = []
+initialize_session_state(difficulty, low, high)
 
 st.subheader("Make a guess")
 
@@ -64,25 +67,17 @@ st.info(
     f"Attempts left: {max(attempt_limit - st.session_state.attempts, 0)}"
 )
 
-raw_guess = st.text_input("Enter your guess:", key=f"guess_input_{difficulty}")
-
-col1, col2, col3 = st.columns(3)
-with col1:
-    submit = st.button("Submit Guess 🚀")
-with col2:
-    new_game = st.button("New Game 🔁")
-with col3:
+with st.form("guess_form"):
+    raw_guess = st.text_input(
+        "Enter your guess:",
+        value=st.session_state.guess_input,
+    )
+    submit = st.form_submit_button("Submit Guess 🚀")
+    new_game = st.form_submit_button("New Game 🔁")
     show_hint = st.checkbox("Show hint", value=True)
 
-# We collaborated to fix the new-game reset bug by clearing the previous round before starting fresh.
-# FIXME: New game must clear previous state before starting a fresh round.
 if new_game:
-    st.session_state.secret = random.randint(low, high)
-    st.session_state.attempts = 0
-    st.session_state.score = 0
-    st.session_state.status = "playing"
-    st.session_state.history = []
-    st.session_state.guess_input = ""
+    reset_round(difficulty, low, high)
     st.success("New game started.")
     st.rerun()
 
@@ -94,14 +89,13 @@ if st.session_state.status != "playing":
     st.stop()
 
 if submit:
-    # We collaborated to fix the range-validation bug by rejecting guesses outside the active difficulty.
     ok, guess_int, err = parse_guess(raw_guess)
+    st.session_state.guess_input = raw_guess
 
     if not ok:
         st.error(err)
         st.stop()
 
-    # FIXME: Out-of-range guesses must be rejected before comparing values.
     if guess_int < low or guess_int > high:
         st.error(f"Guess out of range. Enter a number between {low} and {high}.")
         st.stop()

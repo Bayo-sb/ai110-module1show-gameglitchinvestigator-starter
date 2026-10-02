@@ -25,28 +25,35 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+This game is a number-guessing app built in Streamlit. The player chooses a difficulty level, tries to guess a secret whole number within a range, and receives feedback until they either win or run out of attempts.
+
+The main bugs I found were the reversed hint logic, stale game state between rounds, incorrect difficulty progression, and invalid guesses being accepted without proper range checks. The hints were telling players to go lower when the guess was too low, and the game was not resetting cleanly when a new round started.
+
+I fixed the comparison logic so lower guesses correctly say “Go HIGHER!” and higher guesses correctly say “Go LOWER!” I also corrected the difficulty ranges, reset stale session state on new games and difficulty changes, and added validation so the app rejects invalid input and guesses outside the allowed range. I moved the reusable logic into `logic_utils.py` and verified the behavior with pytest.
 
 ## 📸 Demo Walkthrough
 
 Describe your fixed game in numbered steps so a reader can follow along without watching a video:
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+Open the app and choose a difficulty level: Easy, Normal, or Hard. The game generates a secret whole number within the chosen range.
+
+Enter a guess in the text box and click Submit. The app checks whether the value is valid and whether it is within the allowed range for that difficulty.
+
+The game compares your guess to the secret number using numeric logic and decides whether the answer is too low or too high.
+
+The app gives a clear hint: if your guess is too low, it tells you to go higher, and if it is too high, it tells you to go lower.
+
+Keep guessing until you either find the secret number or run out of attempts. The score updates after each guess, and you can start a new round at any time.
 
 **Screenshot** *(optional)*: <!-- Insert a screenshot of your fixed, winning game here -->
 
 ## 🧪 Test Results
 
-```
-# Paste your pytest output here, e.g.:
-# pytest tests/
-# ========================= X passed in 0.XXs =========================
+```bash
+pytest -q test/test_game_logic.py
+========================
+18 passed in 0.02s
+========================
 ```
 
 ## 🚀 Stretch Features
